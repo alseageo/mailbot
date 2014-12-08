@@ -9,10 +9,13 @@ docs/build/
 # auto-generated
 *.pyc
 *.pyo
+*.iml
+.idea/
 *.egg-info
 .coverage
 .tox/
 build/
+dist/
 share/
 
 # local live test settings
