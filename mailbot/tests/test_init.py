@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from . import MailBotTestCase
-from .. import register, CALLBACKS_MAP, RegisterException
+# from . import MailBotTestCase
+from mailbot.tests import MailBotTestCase
+# from .. import register, CALLBACKS_MAP, RegisterException
+from mailbot import register, CALLBACKS_MAP, RegisterException
 
 
 class RegisterTest(MailBotTestCase):

@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from email import message_from_string
+from exceptions import ValueError
 
 from imapclient import IMAPClient
 
@@ -58,11 +59,16 @@ class MailBot(object):
         messages = self.get_messages()
 
         for uid, msg in messages.items():
-            self.mark_processing(uid)
-            message = message_from_string(msg['RFC822'])
-            for callback_class, rules in CALLBACKS_MAP.items():
-                self.process_message(message, callback_class, rules)
-            self.mark_processed(uid)
+            try:
+                self.mark_processing(uid)
+                message = message_from_string(msg['RFC822'])
+                for callback_class, rules in CALLBACKS_MAP.items():
+                    self.process_message(message, callback_class, rules)
+                self.mark_processed(uid)
+            except ValueError:
+                self.mark_unseen(uid)
+
+
 
     def reset_timeout_messages(self):
         """Remove the \\Flagged and \\Seen flags from mails that are too old.
@@ -84,7 +90,7 @@ class MailBot(object):
                     if data['INTERNALDATE'].replace(tzinfo=None) < date_pivot]
 
         if to_reset:
-            self.client.remove_flags(to_reset, ['\\Flagged', '\\Seen'])
+            self.mark_unseen(to_reset)
 
     def mark_processing(self, uid):
         """Mark the message corresponding to uid as being processed."""
@@ -94,3 +100,7 @@ class MailBot(object):
         """Mark the message corresponding to uid as processed."""
         self.client.remove_flags([uid], ['\\Flagged'])
         self.client.add_flags([uid], ['\\Seen'])
+
+    def mark_unseen(self, uid):
+        """Mark the message corresponding to uid as processed."""
+        self.client.remove_flags(uid, ['\\Flagged', '\\Seen'])
