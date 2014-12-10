@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 from email import message_from_string
 import logging
-from exceptions import ValueError
 
 from imapclient import IMAPClient
 
