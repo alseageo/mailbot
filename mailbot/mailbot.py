@@ -71,6 +71,7 @@ class MailBot(object):
                 for callback_class, rules in CALLBACKS_MAP.items():
                     self.process_message(message, callback_class, rules)
                 self.mark_processed(uid)
+                log.info("process_messages successful: " + str(msg))
             except Exception as e:
                 error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(msg)
                 log.error(error_msg)
