@@ -2,10 +2,12 @@
 
 from datetime import datetime, timedelta
 from email import message_from_string
+import logging
 from exceptions import ValueError
 
 from imapclient import IMAPClient
 
+log = logging.getLogger(__name__)
 
 class MailBot(object):
     """MailBot mail class, where the magic is happening.
@@ -43,8 +45,13 @@ class MailBot(object):
 
     def get_messages(self):
         """Return the list of messages to process."""
-        ids = self.get_message_ids()
-        return self.client.fetch(ids, ['RFC822'])
+        try:
+            ids = self.get_message_ids()
+            return self.client.fetch(ids, ['RFC822'])
+        except Exception as e:
+            error_msg = "Error in get_messages: " + str(e.args) + "\nIds: " + str(ids)
+            log.error(error_msg)
+            raise Exception(error_msg)
 
     def process_message(self, message, callback_class, rules):
         """Check if callback matches rules, and if so, trigger."""
@@ -65,8 +72,11 @@ class MailBot(object):
                 for callback_class, rules in CALLBACKS_MAP.items():
                     self.process_message(message, callback_class, rules)
                 self.mark_processed(uid)
-            except ValueError:
-                self.mark_unseen(uid)
+            except Exception as e:
+                error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(msg)
+                log.error(error_msg)
+                raise Exception(error_msg)
+                # self.mark_unseen(uid)
 
 
 
@@ -103,4 +113,4 @@ class MailBot(object):
 
     def mark_unseen(self, uid):
         """Mark the message corresponding to uid as processed."""
-        self.client.remove_flags(uid, ['\\Flagged', '\\Seen'])
+        self.client.remove_flags([uid], ['\\Flagged', '\\Seen'])

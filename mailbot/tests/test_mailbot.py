@@ -37,6 +37,7 @@ class MailBotTest(MailBotClientTest):
 
         __init__.assert_called_once_with('somehost', **kwargs)
         login.assert_called_once_with('john', 'doe')
+        print self.bot.home_folder
         select_folder.assert_called_once_with(self.bot.home_folder)
 
     def test_get_message_ids(self):

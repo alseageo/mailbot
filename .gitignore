@@ -16,6 +16,7 @@ docs/build/
 .tox/
 build/
 dist/
+venv/
 share/
 
 # local live test settings
