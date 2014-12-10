@@ -8,6 +8,7 @@ from imapclient import IMAPClient
 
 log = logging.getLogger(__name__)
 
+
 class MailBot(object):
     """MailBot mail class, where the magic is happening.
 
@@ -71,13 +72,13 @@ class MailBot(object):
                 for callback_class, rules in CALLBACKS_MAP.items():
                     self.process_message(message, callback_class, rules)
                 self.mark_processed(uid)
-                log.info("process_messages successful: " + str(msg))
+                log.info("process_messages successful: " + str(msg) + "\nuid: " + str(uid))
             except Exception as e:
-                error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(msg)
+                error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(
+                    msg) + "\nuid: " + str(uid)
                 log.error(error_msg)
-                raise Exception(error_msg)
-                # self.mark_unseen(uid)
-
+                # raise Exception(error_msg)
+                self.mark_unseen(uid)
 
 
     def reset_timeout_messages(self):
