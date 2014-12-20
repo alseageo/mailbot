@@ -10,6 +10,7 @@ docs/build/
 *.pyc
 *.pyo
 *.iml
+mailbot.iml
 .idea/
 *.egg-info
 .coverage

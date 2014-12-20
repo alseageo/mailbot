@@ -19,6 +19,8 @@ class MailBot(object):
     """
     home_folder = 'INBOX'
     imapclient = IMAPClient
+    _MAX_RETRIES = 10
+    retry_dict = {}
 
     def __init__(self, host, username, password, port=None, use_uid=True,
                  ssl=False, stream=False, timeout=None):
@@ -78,7 +80,16 @@ class MailBot(object):
                     msg) + "\nuid: " + str(uid)
                 log.error(error_msg)
                 # raise Exception(error_msg)
-                self.mark_unseen(uid)
+
+                if not uid in self.retry_dict:
+                    self.retry_dict[uid] = 0
+                self.retry_dict[uid] += 1
+
+                if self.retry_dict[uid] < self._MAX_RETRIES:
+                    self.mark_unseen(uid)
+                else:
+                    self.mark_processed(uid)
+                    del self.retry_dict[uid]
 
 
     def reset_timeout_messages(self):
@@ -113,5 +124,5 @@ class MailBot(object):
         self.client.add_flags([uid], ['\\Seen'])
 
     def mark_unseen(self, uid):
-        """Mark the message corresponding to uid as processed."""
+        """Mark the message corresponding to uid as unprocessed."""
         self.client.remove_flags([uid], ['\\Flagged', '\\Seen'])
