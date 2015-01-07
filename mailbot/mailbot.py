@@ -19,7 +19,8 @@ class MailBot(object):
     """
     home_folder = 'INBOX'
     imapclient = IMAPClient
-    _MAX_RETRIES = 10
+    # _MAX_RETRIES = 10
+    _MAX_RETRIES = 1
     retry_dict = {}
 
     def __init__(self, host, username, password, port=None, use_uid=True,
