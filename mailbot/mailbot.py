@@ -19,8 +19,7 @@ class MailBot(object):
     """
     home_folder = 'INBOX'
     imapclient = IMAPClient
-    # _MAX_RETRIES = 10
-    _MAX_RETRIES = 1
+    _MAX_RETRIES = 5
     retry_dict = {}
 
     def __init__(self, host, username, password, port=None, use_uid=True,
@@ -69,12 +68,10 @@ class MailBot(object):
         messages = self.get_messages()
 
         for uid, msg in messages.items():
+            message = None
             try:
                 self.mark_processing(uid)
                 message = message_from_string(msg['RFC822'])
-                for callback_class, rules in CALLBACKS_MAP.items():
-                    self.process_message(message, callback_class, rules)
-                self.mark_processed(uid)
                 log.info("process_messages successful: " + str(msg) + "\nuid: " + str(uid))
             except Exception as e:
                 error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(
@@ -91,6 +88,10 @@ class MailBot(object):
                 else:
                     self.mark_processed(uid)
                     del self.retry_dict[uid]
+            for callback_class, rules in CALLBACKS_MAP.items():
+                self.process_message(message, callback_class, rules)
+            if message is not None:
+                self.mark_processed(uid)
 
 
     def reset_timeout_messages(self):
