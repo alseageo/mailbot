@@ -64,6 +64,7 @@ class MailBot(object):
     def process_messages(self):
         """Process messages: check which callbacks should be triggered."""
         from . import CALLBACKS_MAP
+
         self.reset_timeout_messages()
         messages = self.get_messages()
 
@@ -106,12 +107,15 @@ class MailBot(object):
             return
 
         ids = self.client.search(['Flagged', 'Seen'])
-        messages = self.client.fetch(ids, ['INTERNALDATE'])
+        messages = None
+        if ids is not None:
+            messages = self.client.fetch(ids, ['INTERNALDATE'])
 
-        # compare datetimes without tzinfo, as UTC
-        date_pivot = datetime.utcnow() - timedelta(seconds=self.timeout)
-        to_reset = [msg_id for msg_id, data in messages.items()
-                    if data['INTERNALDATE'].replace(tzinfo=None) < date_pivot]
+        if messages is not None:
+            # compare datetimes without tzinfo, as UTC
+            date_pivot = datetime.utcnow() - timedelta(seconds=self.timeout)
+            to_reset = [msg_id for msg_id, data in messages.items()
+                        if data['INTERNALDATE'].replace(tzinfo=None) < date_pivot]
 
         if to_reset:
             self.mark_unseen(to_reset)
