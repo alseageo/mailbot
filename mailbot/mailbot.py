@@ -80,15 +80,16 @@ class MailBot(object):
                 log.error(error_msg)
                 # raise Exception(error_msg)
 
-                if not uid in self.retry_dict:
-                    self.retry_dict[uid] = 0
-                self.retry_dict[uid] += 1
-
-                if self.retry_dict[uid] < self._MAX_RETRIES:
-                    self.mark_unseen(uid)
-                else:
-                    self.mark_processed(uid)
-                    del self.retry_dict[uid]
+                # if not uid in self.retry_dict:
+                #     self.retry_dict[uid] = 0
+                # self.retry_dict[uid] += 1
+                #
+                # if self.retry_dict[uid] < self._MAX_RETRIES:
+                #     self.mark_unseen(uid)
+                # else:
+                #     self.mark_processed(uid)
+                #     del self.retry_dict[uid]
+                self.mark_unseen(uid)
             for callback_class, rules in CALLBACKS_MAP.items():
                 self.process_message(message, callback_class, rules)
             if message is not None:
