@@ -74,6 +74,9 @@ class MailBot(object):
                 self.mark_processing(uid)
                 message = message_from_string(msg['RFC822'])
                 log.info("process_messages successful: " + str(msg) + "\nuid: " + str(uid))
+                for callback_class, rules in CALLBACKS_MAP.items():
+                    self.process_message(message, callback_class, rules)
+                self.mark_processed(uid)
             except Exception as e:
                 error_msg = "Error in process_messages: " + str(e.args) + "\nMessage Raw: " + str(
                     msg) + "\nuid: " + str(uid)
@@ -90,10 +93,6 @@ class MailBot(object):
                 #     self.mark_processed(uid)
                 #     del self.retry_dict[uid]
                 self.mark_unseen(uid)
-            for callback_class, rules in CALLBACKS_MAP.items():
-                self.process_message(message, callback_class, rules)
-            if message is not None:
-                self.mark_processed(uid)
 
 
     def reset_timeout_messages(self):
